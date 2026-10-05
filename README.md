@@ -4,19 +4,22 @@ Reasoning datasets built from code and labelled by code. Every row is
 re-derived by an independent verifier that does not import the generator, and
 kept only if the verifier reproduces the label exactly.
 
-Each name links to the dataset on Kaggle. Browse them on one page:
+Download them on Kaggle, or browse them on one page:
 **[datasets-chi.vercel.app](https://datasets-chi.vercel.app)**
 
-| dataset | task | train / val / test |
-|---|---|---|
-| [Contradiction Ledger](https://www.kaggle.com/datasets/muhammadhammas13/contradiction-ledger) | Find facts a long document states one way and later states differently | 40,000 / 2,000 / 4,000 |
-| [WitnessDrift](https://www.kaggle.com/datasets/muhammadhammas13/witnessdrift) | Reconstruct an event from several partly-wrong accounts and say who to trust | 50,000 / 2,500 / 5,000 |
-| [FraudTrail](https://www.kaggle.com/datasets/muhammadhammas13/fraudtrail) | Follow the money through a ledger and name the scheme, or say there isn't one | 35,000 / 2,000 / 4,000 |
-| [TimelineForge](https://www.kaggle.com/datasets/muhammadhammas13/timelineforge) | Rebuild an absolute timeline from a story told out of order | 60,000 / 3,000 / 6,000 |
-| [DeEscalate](https://www.kaggle.com/datasets/muhammadhammas13/deescalate) | Track conflict turn by turn and pick the reply that cools it | 45,000 / 2,500 / 5,000 |
-| [Urdu Legal Reason](https://www.kaggle.com/datasets/muhammadhammas13/urdu-legal-reason) | Apply a statutory provision to a complaint, in Urdu, Roman Urdu or English | 30,000 / 2,000 / 4,000 |
-| [Interrogation Logic](https://www.kaggle.com/datasets/muhammadhammas13/interrogation-logic) | Name the answers in an interview that contradict the record | 40,000 / 2,500 / 5,000 |
-| [ProtocolCheck](https://www.kaggle.com/datasets/muhammadhammas13/protocolcheck) | Audit an execution log against a written procedure | 45,000 / 2,500 / 5,000 |
+| dataset | what it trains | input (real test example, shortened) | expected output | rows (train / val / test) |
+|---|---|---|---|---|
+| [Contradiction Ledger](https://www.kaggle.com/datasets/muhammadhammas13/contradiction-ledger) | Long-document consistency: find facts stated one way and later another | A 5-20 page lease: *"The lease runs for 3 years from 2020-12-05 ..."* and, pages later, a different start date and rent | `{"n_contradictions": 2, "contradictions": [{"type": "temporal", "text_a": "2020-12-05", "text_b": "2020-02-05"}, {"type": "numeric", "text_a": "EUR 12k", "text_b": "EUR 5k"}]}` | 40,000 / 2,000 / 4,000 |
+| [WitnessDrift](https://www.kaggle.com/datasets/muhammadhammas13/witnessdrift) | Source reliability: rebuild an event from partly-wrong accounts | Five witness statements: *"[W1] taken 180 days after ... I was on the scene between 11:51 and 11:56 ... I'm fairly sure that at about 11:38, Colin pushed past Grace"* | Each witness's reliability (`"W2": 0.78`, `"W1": 0.17`), the most and least reliable, and the recovered timeline `["11:38", "Colin", "pushed past Grace", "the pavement outside"]` | 50,000 / 2,500 / 5,000 |
+| [FraudTrail](https://www.kaggle.com/datasets/muhammadhammas13/fraudtrail) | Financial investigation: follow the money, name the scheme or say there is none | A ledger of 16 entities and 45-235 transactions, with red herrings | `{"scheme": "none", "entities": [], "evidence_rows": []}` - or a named scheme (layering, round-tripping, kickback, ...) with the exact rows that prove it | 35,000 / 2,000 / 4,000 |
+| [TimelineForge](https://www.kaggle.com/datasets/muhammadhammas13/timelineforge) | Temporal reasoning: absolute times from a story told out of order | *"At 2024-03-20 01:13 PST, Noor noted that they landed. 10 days before they landed, the visa arrived. 12 hours before the visa arrived, the flights were booked ..."* | Every event in UTC, in order - `"the flights were booked": "2024-03-09 21:13"`, `"the visa arrived": "2024-03-10 09:13"`, ... - and the events the text cannot place | 60,000 / 3,000 / 6,000 |
+| [DeEscalate](https://www.kaggle.com/datasets/muhammadhammas13/deescalate) | Conflict dynamics: track tension turn by turn and pick the calming reply | A neighbour dispute, the stated rules (*"Tension starts at 3.38. A is sensitive to dismissal, threat; reactivity 1.04 ..."*), the turns, and three candidate replies | `{"tension": [2.97, 4.22, 6.31, ...], "peak": 10.0, "direction": "escalated", "best_option": "c"}` | 45,000 / 2,500 / 5,000 |
+| [Urdu Legal Reason](https://www.kaggle.com/datasets/muhammadhammas13/urdu-legal-reason) | Statutory reasoning in Urdu, Roman Urdu or English | *"Shahid ne Yasir ko Islamabad mein kaha ke woh sarkari rate par plot dila sakta hai aur 10 August 2023 ko Rs 60,000 le liye ..."* | `{"provision": "Section 420, Pakistan Penal Code 1860", "forum": "police station, then Sessions Court"}` | 30,000 / 2,000 / 4,000 |
+| [Interrogation Logic](https://www.kaggle.com/datasets/muhammadhammas13/interrogation-logic) | Checking testimony against a record | A ten-question interview (*"A2. I was with the site manager. ... A4. I got there about 7:03 pm."*) and the established facts | `{"deception_probability": 0.18, "false_claims": ["A2"]}` - the probability is a stated scoring rule, not a calibrated estimate | 40,000 / 2,500 / 5,000 |
+| [ProtocolCheck](https://www.kaggle.com/datasets/muhammadhammas13/protocolcheck) | Compliance auditing: an execution log against a written procedure | *"PROCEDURE: Change release to production / 1. Raise the change record - by the engineer / 2. Attach the test evidence ..."* and a timestamped log | `{"compliant": true, "violations": []}` - or each skipped step, wrong role, wrong order or missed timing window | 45,000 / 2,500 / 5,000 |
+
+Every name links to the data on Kaggle (JSONL splits with a dataset card, baselines and checksums). Each row's
+prompt states everything needed to derive its answer, and the answer is the model's target output.
 
 **402,000 examples** across the eight: 345,000 train, 19,000 val, 38,000 test.
 
